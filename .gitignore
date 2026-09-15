@@ -1,0 +1,16 @@
+# PDFs
+*.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+
+# Django
+db.sqlite3
+*.log
+
+# Environment variables
+.env

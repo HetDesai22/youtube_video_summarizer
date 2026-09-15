@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Video Summarizer</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #1e293b, var(--bg));
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .card h1 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+      text-align: center;
+    }
+
+    .card p.subtitle {
+      margin: 0 0 32px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="url"] {
+      flex: 1;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    input[type="url"]:focus {
+      border-color: var(--accent);
+    }
+
+    input[type="url"]::placeholder {
+      color: #64748b;
+    }
+
+    button {
+      padding: 14px 20px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    button:hover {
+      background: var(--accent-hover);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background: #475569;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #status {
+      min-height: 20px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    #result {
+      margin-top: 8px;
+      padding: 18px;
+      border-radius: 10px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>YouTube Video Summarizer</h1>
+    <p class="subtitle">Paste a YouTube link and get an AI-generated summary in seconds.</p>
+
+    <form id="summarize-form">
+      <label for="youtube-url">YouTube video URL</label>
+      <div class="input-row">
+        <input
+          type="url"
+          id="youtube-url"
+          name="youtube_url"
+          placeholder="https://www.youtube.com/watch?v=..."
+          required
+        >
+      </div>
+      <button type="submit" id="generate-btn">Generate Summary</button>
+      <div id="status"></div>
+      <div id="result"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("summarize-form");
+    const button = document.getElementById("generate-btn");
+    const status = document.getElementById("status");
+    const result = document.getElementById("result");
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str == null ? "" : str;
+      return div.innerHTML;
+    }
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const url = document.getElementById("youtube-url").value.trim();
+      if (!url) return;
+
+      button.disabled = true;
+      button.textContent = "Checking...";
+      status.textContent = "⏳ Checking video...";
+      result.style.display = "none";
+      result.innerHTML = "";
+
+      try {
+        const response = await fetch("/check-video/?url=" + encodeURIComponent(url));
+        const data = await response.json();
+
+        if (data.success) {
+          result.innerHTML =
+            "✅ Video is valid and accessible<br><br>" +
+            "Title: " + escapeHtml(data.data.title) + "<br>" +
+            "Channel: " + escapeHtml(data.data.channel) + "<br>" +
+            "Duration: " + escapeHtml(data.data.duration);
+        } else {
+          result.innerHTML = "❌ Video can't be accessed<br><br>" + escapeHtml(data.message);
+        }
+      } catch (err) {
+        result.innerHTML =
+          "❌ Video can't be accessed<br><br>Something went wrong. Please try again.";
+      }
+
+      status.textContent = "";
+      result.style.display = "block";
+      button.disabled = false;
+      button.textContent = "Generate Summary";
+    });
+  </script>
+</body>
+</html>
