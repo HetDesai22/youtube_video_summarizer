@@ -4,44 +4,115 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YouTube Video Summarizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
+      --bg: #0a0f1a;
+      --surface: #131a2b;
+      --surface-2: #1a2338;
+      --surface-3: #212c46;
       --accent: #6366f1;
+      --accent-2: #8b5cf6;
       --accent-hover: #4f46e5;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --border: #334155;
+      --text: #eef1fb;
+      --muted: #94a1c4;
+      --border: #232e48;
+      --border-strong: #2f3c5c;
+      --danger: #f87171;
+      --danger-bg: #2a1518;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24), 0 1px 1px rgba(0, 0, 0, 0.16);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.45);
+      --font: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
     }
 
     * { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top, #1e293b, var(--bg));
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-      color: var(--text);
-      padding: 24px;
+    html, body {
+      height: 100%;
     }
 
-    .card {
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(99, 102, 241, 0.12), transparent);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(19, 26, 43, 0.85);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .app-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-header .logo {
+      font-size: 1.3rem;
+    }
+
+    .app-header .name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.2px;
+    }
+
+    .header-chat-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      font-size: 0.88rem;
+    }
+
+    .app-main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .view {
       width: 100%;
-      max-width: 560px;
-      background: var(--card-bg);
+      max-width: 640px;
+      margin-top: 6vh;
+    }
+
+    .view[hidden] { display: none; }
+
+    /* ---- Input view ---- */
+    .card {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 40px 32px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      border-radius: 18px;
+      padding: 44px 36px;
+      box-shadow: var(--shadow-lg);
     }
 
     .card h1 {
       margin: 0 0 8px;
-      font-size: 1.6rem;
+      font-size: 1.7rem;
+      font-weight: 800;
+      letter-spacing: -0.4px;
       text-align: center;
     }
 
@@ -49,160 +120,936 @@
       margin: 0 0 32px;
       text-align: center;
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: 0.96rem;
     }
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    form { display: flex; flex-direction: column; gap: 16px; }
 
-    label {
-      font-size: 0.85rem;
-      color: var(--muted);
-      font-weight: 600;
-    }
+    label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
 
-    .input-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    input[type="url"] {
-      flex: 1;
+    input[type="url"], input[type="text"] {
+      width: 100%;
       padding: 14px 16px;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: #0f172a;
+      background: var(--bg);
       color: var(--text);
+      font-family: var(--font);
       font-size: 1rem;
       outline: none;
-      transition: border-color 0.15s ease;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    input[type="url"]:focus {
+    input[type="url"]:focus, input[type="text"]:focus {
       border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
     }
-
-    input[type="url"]::placeholder {
-      color: #64748b;
-    }
+    input[type="url"]::placeholder, input[type="text"]::placeholder { color: #5b6685; }
 
     button {
       padding: 14px 20px;
       border: none;
       border-radius: 10px;
-      background: var(--accent);
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
       color: #fff;
+      font-family: var(--font);
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s ease, transform 0.1s ease;
+      box-shadow: var(--shadow-sm);
+      transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
     }
 
-    button:hover {
-      background: var(--accent-hover);
+    button:hover { filter: brightness(1.08); box-shadow: var(--shadow-md); }
+    button:active { transform: scale(0.98); }
+    button:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+    button:disabled { filter: none; }
+    button.secondary {
+      background: var(--surface-2);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      box-shadow: none;
     }
+    button.secondary:hover { background: var(--surface-3); filter: none; box-shadow: none; }
 
-    button:active {
-      transform: scale(0.98);
-    }
-
-    button:disabled {
-      background: #475569;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    #status {
-      min-height: 20px;
-      font-size: 0.9rem;
-      color: var(--muted);
+    /* ---- Loading view ---- */
+    .loading-card {
       text-align: center;
+      padding: 48px 24px;
     }
 
-    #result {
-      margin-top: 8px;
-      padding: 18px;
-      border-radius: 10px;
-      background: #0f172a;
+    .spinner {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 24px;
+      border: 4px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 4px 0;
+    }
+
+    /* ---- Result view ---- */
+    .view-result { max-width: 720px; }
+
+    .video-card {
+      display: flex;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .video-card img {
+      width: 140px;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+      background: var(--surface-2);
+    }
+
+    .video-card .video-meta { min-width: 0; }
+
+    .video-card .video-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin: 0 0 6px;
+      overflow-wrap: break-word;
+    }
+
+    .video-card .video-sub {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+    }
+
+    .section.summary-section {
+      border-left: 3px solid var(--accent);
+    }
+
+    .section.summary-section p {
+      margin: 0;
+      line-height: 1.65;
+      font-size: 1.02rem;
+      white-space: pre-line; /* keep the summary's paragraph breaks */
+    }
+
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .chip {
+      background: var(--surface-2);
       border: 1px solid var(--border);
       color: var(--text);
-      line-height: 1.6;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+    }
+
+    ul.point-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    ul.point-list li {
+      display: flex;
+      gap: 10px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    ul.point-list li::before {
+      content: "";
+      flex-shrink: 0;
+      width: 6px;
+      height: 6px;
+      margin-top: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .result-actions {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    /* ---- Error view ---- */
+    .error-card {
+      text-align: center;
+      padding: 40px 32px;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger);
+      border-radius: 16px;
+    }
+
+    .error-card .error-icon { font-size: 2rem; margin-bottom: 12px; }
+
+    .error-card p {
+      color: var(--text);
+      margin: 0 0 24px;
+      line-height: 1.5;
+    }
+
+    /* ---- Questions discussed ---- */
+    .question-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 10px;
+    }
+
+    .question-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    }
+
+    .question-card:hover {
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-sm);
+      transform: translateY(-1px);
+    }
+
+    .question-card.question-card-extra { display: none; }
+    .question-grid.show-all .question-card.question-card-extra { display: flex; }
+
+    .question-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .question-card-time {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-2);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .question-card-ask {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-3);
+      border: 1px solid var(--border-strong);
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1;
+      border-radius: 8px;
+      box-shadow: none;
+    }
+
+    .question-card-ask:hover { background: var(--bg); color: var(--text); filter: none; }
+
+    a.question-card-link {
+      color: inherit;
+      text-decoration: none;
+      flex: 1;
+    }
+
+    .question-card-text {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: var(--text);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    a.question-card-link:hover .question-card-text { color: var(--text); text-decoration: underline; text-decoration-color: var(--border-strong); }
+
+    .questions-toggle-btn {
+      display: block;
+      margin: 14px auto 0;
+      padding: 9px 20px;
+      font-size: 0.85rem;
+    }
+
+    /* ---- Chat with video (slide-in side panel) ---- */
+    .chat-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 9, 16, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .chat-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .chat-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100dvh;
+      width: min(420px, 100vw);
+      background: var(--surface);
+      border-left: 1px solid var(--border-strong);
+      box-shadow: var(--shadow-lg);
+      z-index: 201;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .chat-panel.open { transform: translateX(0); }
+
+    .chat-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chat-panel-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .chat-close-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-2);
+      border: 1px solid var(--border-strong);
+      color: var(--muted);
+      box-shadow: none;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .chat-close-btn:hover { background: var(--surface-3); color: var(--text); filter: none; }
+
+    .chat-messages {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-bottom: 14px;
+    }
+
+    .chat-hint { color: var(--muted); font-size: 0.9rem; margin: 0; }
+
+    .chat-msg {
+      max-width: 88%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      line-height: 1.55;
+      font-size: 0.95rem;
       white-space: pre-wrap;
-      display: none;
+      overflow-wrap: break-word;
+    }
+
+    .chat-msg.user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .chat-msg.assistant {
+      align-self: flex-start;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+
+    .chat-msg.error {
+      align-self: flex-start;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger);
+    }
+
+    .chat-msg.pending { color: var(--muted); font-style: italic; }
+
+    .chat-sources {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 0.82rem;
+      white-space: normal;
+    }
+
+    .chat-sources .label { color: var(--muted); }
+
+    a.source-link {
+      color: #c7d2fe;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 10px;
+      text-decoration: none;
+    }
+
+    a.source-link:hover { border-color: var(--accent); }
+
+    .chat-form { display: flex; gap: 10px; flex-direction: row; flex-shrink: 0; }
+    .chat-form input[type="text"] { flex: 1; min-width: 0; }
+    .chat-form button { padding: 12px 20px; flex-shrink: 0; }
+    .chat-form button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    @media (max-width: 480px) {
+      .video-card { flex-direction: column; }
+      .video-card img { width: 100%; height: auto; }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>YouTube Video Summarizer</h1>
-    <p class="subtitle">Paste a YouTube link and get an AI-generated summary in seconds.</p>
+  <header class="app-header">
+    <span class="brand">
+      <span class="logo">🎬</span>
+      <span class="name">YouTube Summarizer</span>
+    </span>
+    <button type="button" class="header-chat-btn" id="header-chat-btn" hidden>💬 Chat</button>
+  </header>
 
-    <form id="summarize-form">
-      <label for="youtube-url">YouTube video URL</label>
-      <div class="input-row">
-        <input
-          type="url"
-          id="youtube-url"
-          name="youtube_url"
-          placeholder="https://www.youtube.com/watch?v=..."
-          required
-        >
+  <main class="app-main">
+    <section id="view-input" class="view">
+      <div class="card">
+        <h1>Summarize any YouTube video</h1>
+        <p class="subtitle">Paste a link and get an AI-generated summary in moments.</p>
+        <form id="summarize-form">
+          <label for="youtube-url">YouTube video URL</label>
+          <input
+            type="url"
+            id="youtube-url"
+            name="youtube_url"
+            placeholder="https://www.youtube.com/watch?v=..."
+            required
+          >
+          <button type="submit">Summarize</button>
+        </form>
       </div>
-      <button type="submit" id="generate-btn">Generate Summary</button>
-      <div id="status"></div>
-      <div id="result"></div>
+    </section>
+
+    <section id="view-loading" class="view" hidden>
+      <div class="card loading-card">
+        <div class="spinner"></div>
+        <p id="loading-text">Checking video, transcribing, and summarizing...</p>
+        <p id="loading-timer">Elapsed: 0:00</p>
+      </div>
+    </section>
+
+    <section id="view-result" class="view view-result" hidden>
+      <div class="video-card">
+        <img id="result-thumbnail" src="" alt="">
+        <div class="video-meta">
+          <p class="video-title" id="result-title"></p>
+          <p class="video-sub" id="result-channel"></p>
+          <p class="video-sub" id="result-duration"></p>
+        </div>
+      </div>
+
+      <div class="section summary-section">
+        <h2>Summary</h2>
+        <p id="result-summary"></p>
+      </div>
+
+      <div class="section" id="topics-section" hidden>
+        <h2>Main Topics</h2>
+        <div class="chip-row" id="result-topics"></div>
+      </div>
+
+      <div class="section" id="key-points-section" hidden>
+        <h2>Key Points</h2>
+        <ul class="point-list" id="result-key-points"></ul>
+      </div>
+
+      <div class="section" id="conclusions-section" hidden>
+        <h2>Conclusions</h2>
+        <ul class="point-list" id="result-conclusions"></ul>
+      </div>
+
+      <div class="section" id="questions-section" hidden>
+        <h2>Questions discussed</h2>
+        <div class="question-grid" id="result-questions"></div>
+        <button type="button" class="secondary questions-toggle-btn" id="questions-toggle-btn" hidden></button>
+      </div>
+
+      <div class="result-actions">
+        <button type="button" class="secondary" id="summarize-another-btn">Summarize Another Video</button>
+      </div>
+    </section>
+
+    <section id="view-error" class="view" hidden>
+      <div class="error-card">
+        <div class="error-icon">⚠️</div>
+        <p id="error-message"></p>
+        <button type="button" id="try-again-btn">Try Again</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="chat-backdrop" id="chat-backdrop"></div>
+  <aside class="chat-panel" id="chat-panel" aria-label="Chat with this video">
+    <div class="chat-panel-header">
+      <h2>Chat with this video</h2>
+      <button type="button" class="chat-close-btn" id="chat-close-btn" aria-label="Close chat">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages" aria-live="polite">
+      <p class="chat-hint" id="chat-hint">Ask anything about this video. Answers come only from what was said in it.</p>
+    </div>
+    <form class="chat-form" id="chat-form" autocomplete="off">
+      <input type="text" id="chat-input" placeholder="Ask something about this video..." maxlength="1000" required>
+      <button type="submit" id="chat-send">Send</button>
     </form>
-  </div>
+  </aside>
 
   <script>
-    const form = document.getElementById("summarize-form");
-    const button = document.getElementById("generate-btn");
-    const status = document.getElementById("status");
-    const result = document.getElementById("result");
+    const views = {
+      input: document.getElementById("view-input"),
+      loading: document.getElementById("view-loading"),
+      result: document.getElementById("view-result"),
+      error: document.getElementById("view-error"),
+    };
 
-    function escapeHtml(str) {
-      const div = document.createElement("div");
-      div.textContent = str == null ? "" : str;
-      return div.innerHTML;
+    function showView(name) {
+      Object.entries(views).forEach(([key, el]) => {
+        el.hidden = key !== name;
+      });
     }
 
-    form.addEventListener("submit", async function (e) {
+    function fillList(el, items) {
+      el.innerHTML = "";
+      (items || []).forEach(function (item) {
+        const li = document.createElement("li");
+        li.textContent = item;
+        el.appendChild(li);
+      });
+    }
+
+    function fillChips(el, items) {
+      el.innerHTML = "";
+      (items || []).forEach(function (item) {
+        const span = document.createElement("span");
+        span.className = "chip";
+        span.textContent = item;
+        el.appendChild(span);
+      });
+    }
+
+    function showResult(data) {
+      const video = data.data;
+      const summary = video.summary;
+
+      const thumbnail = document.getElementById("result-thumbnail");
+      if (video.thumbnail) {
+        thumbnail.src = video.thumbnail;
+        thumbnail.hidden = false;
+      } else {
+        thumbnail.hidden = true;
+      }
+      document.getElementById("result-title").textContent = video.title || "";
+      document.getElementById("result-channel").textContent = video.channel || "";
+      document.getElementById("result-duration").textContent = video.duration
+        ? "Duration: " + video.duration
+        : "";
+
+      document.getElementById("result-summary").textContent = summary.summary || summary.raw_output || "";
+
+      const topicsSection = document.getElementById("topics-section");
+      if (summary.main_topics && summary.main_topics.length) {
+        fillChips(document.getElementById("result-topics"), summary.main_topics);
+        topicsSection.hidden = false;
+      } else {
+        topicsSection.hidden = true;
+      }
+
+      const keyPointsSection = document.getElementById("key-points-section");
+      if (summary.key_points && summary.key_points.length) {
+        fillList(document.getElementById("result-key-points"), summary.key_points);
+        keyPointsSection.hidden = false;
+      } else {
+        keyPointsSection.hidden = true;
+      }
+
+      const conclusionsSection = document.getElementById("conclusions-section");
+      if (summary.conclusions && summary.conclusions.length) {
+        fillList(document.getElementById("result-conclusions"), summary.conclusions);
+        conclusionsSection.hidden = false;
+      } else {
+        conclusionsSection.hidden = true;
+      }
+
+      renderQuestions(video);
+
+      setupChat(video.video_id, video.chat_available);
+      showView("result");
+
+      // A fresh (non-cached) run detects questions in the background so the
+      // summary above doesn't have to wait for it - pick them up once ready.
+      questionsPollToken += 1;
+      if (video.questions_pending) {
+        pollForQuestions(video.video_id, questionsPollToken);
+      }
+    }
+
+    function renderQuestions(video) {
+      const questionsSection = document.getElementById("questions-section");
+      if (video.questions && video.questions.length) {
+        fillQuestions(document.getElementById("result-questions"), video.questions, video.chat_available);
+        questionsSection.hidden = false;
+        return true;
+      }
+      questionsSection.hidden = true;
+      return false;
+    }
+
+    let questionsPollToken = 0;
+    const QUESTIONS_POLL_DELAYS_MS = [15000, 20000, 20000]; // +15s, +35s, +55s
+
+    function pollForQuestions(videoId, token, attempt) {
+      attempt = attempt || 0;
+      if (attempt >= QUESTIONS_POLL_DELAYS_MS.length) return;
+
+      setTimeout(async function () {
+        if (token !== questionsPollToken) return; // superseded by a newer video
+
+        try {
+          const canonicalUrl = "https://www.youtube.com/watch?v=" + encodeURIComponent(videoId);
+          const response = await fetch("/check-video/?url=" + encodeURIComponent(canonicalUrl));
+          const data = await response.json();
+          if (token !== questionsPollToken) return;
+
+          if (data.success && renderQuestions(data.data)) {
+            return; // questions arrived - stop polling
+          }
+        } catch (err) {
+          // Best-effort background refresh; a network hiccup just means we
+          // try again on the next scheduled attempt.
+        }
+        pollForQuestions(videoId, token, attempt + 1);
+      }, QUESTIONS_POLL_DELAYS_MS[attempt]);
+    }
+
+    const QUESTIONS_VISIBLE_DEFAULT = 6;
+
+    function fillQuestions(container, questions, chatAvailable) {
+      container.innerHTML = "";
+      container.classList.remove("show-all");
+
+      questions.forEach(function (item, index) {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        if (index >= QUESTIONS_VISIBLE_DEFAULT) card.classList.add("question-card-extra");
+
+        const top = document.createElement("div");
+        top.className = "question-card-top";
+
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "question-card-time";
+        timeSpan.textContent = "⏱ " + item.timestamp;
+        top.appendChild(timeSpan);
+
+        if (chatAvailable) {
+          const askButton = document.createElement("button");
+          askButton.type = "button";
+          askButton.className = "question-card-ask";
+          askButton.title = "Ask the AI about this question";
+          askButton.textContent = "💬";
+          askButton.addEventListener("click", function () {
+            askAboutQuestion(item.question);
+          });
+          top.appendChild(askButton);
+        }
+
+        card.appendChild(top);
+
+        const link = document.createElement("a");
+        link.className = "question-card-link";
+        link.href = item.youtube_url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.title = "Watch at this point in the video";
+
+        const textP = document.createElement("p");
+        textP.className = "question-card-text";
+        textP.textContent = item.question;
+        link.appendChild(textP);
+
+        card.appendChild(link);
+        container.appendChild(card);
+      });
+
+      const toggleBtn = document.getElementById("questions-toggle-btn");
+      if (questions.length > QUESTIONS_VISIBLE_DEFAULT) {
+        toggleBtn.hidden = false;
+        toggleBtn.dataset.expanded = "false";
+        toggleBtn.textContent = "Show all " + questions.length + " questions";
+      } else {
+        toggleBtn.hidden = true;
+      }
+    }
+
+    document.getElementById("questions-toggle-btn").addEventListener("click", function () {
+      const container = document.getElementById("result-questions");
+      const expanded = this.dataset.expanded === "true";
+      container.classList.toggle("show-all", !expanded);
+      this.dataset.expanded = expanded ? "false" : "true";
+      this.textContent = expanded
+        ? "Show all " + container.children.length + " questions"
+        : "Show fewer questions";
+    });
+
+    /* ---- Chat with video (slide-in side panel) ---- */
+    let chatVideoId = null;
+    let chatSessionId = null;
+    let chatBusy = false;
+    let chatAvailableForVideo = false;
+
+    const headerChatBtn = document.getElementById("header-chat-btn");
+    const chatPanel = document.getElementById("chat-panel");
+    const chatBackdrop = document.getElementById("chat-backdrop");
+    const chatCloseBtn = document.getElementById("chat-close-btn");
+    const chatMessages = document.getElementById("chat-messages");
+    const chatForm = document.getElementById("chat-form");
+    const chatInput = document.getElementById("chat-input");
+    const chatSend = document.getElementById("chat-send");
+
+    function getCookie(name) {
+      const match = document.cookie.split("; ").find(function (row) {
+        return row.startsWith(name + "=");
+      });
+      return match ? decodeURIComponent(match.split("=")[1]) : "";
+    }
+
+    function openChatPanel() {
+      if (!chatAvailableForVideo) return;
+      chatPanel.classList.add("open");
+      chatBackdrop.classList.add("open");
+      chatInput.focus();
+    }
+
+    function closeChatPanel() {
+      chatPanel.classList.remove("open");
+      chatBackdrop.classList.remove("open");
+    }
+
+    function setupChat(videoId, available) {
+      chatVideoId = videoId || null;
+      chatSessionId = null;
+      chatBusy = false;
+      chatAvailableForVideo = !!(available && chatVideoId);
+      chatMessages.innerHTML = "";
+      const hint = document.createElement("p");
+      hint.className = "chat-hint";
+      hint.textContent = "Ask anything about this video. Answers come only from what was said in it.";
+      chatMessages.appendChild(hint);
+      chatInput.value = "";
+      headerChatBtn.hidden = !chatAvailableForVideo;
+      closeChatPanel();
+    }
+
+    function askAboutQuestion(questionText) {
+      if (!chatAvailableForVideo) return;
+      chatInput.value = questionText;
+      openChatPanel();
+    }
+
+    headerChatBtn.addEventListener("click", openChatPanel);
+    chatCloseBtn.addEventListener("click", closeChatPanel);
+    chatBackdrop.addEventListener("click", closeChatPanel);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeChatPanel();
+    });
+
+    function addChatMessage(role, text, sources) {
+      const hint = chatMessages.querySelector(".chat-hint");
+      if (hint) hint.remove();
+
+      const bubble = document.createElement("div");
+      bubble.className = "chat-msg " + role;
+      bubble.textContent = text;
+
+      if (sources && sources.length) {
+        const row = document.createElement("div");
+        row.className = "chat-sources";
+        const label = document.createElement("span");
+        label.className = "label";
+        label.textContent = "Sources:";
+        row.appendChild(label);
+        sources.forEach(function (source) {
+          if (!source.youtube_url || source.youtube_url.indexOf("https://www.youtube.com/") !== 0) return;
+          const link = document.createElement("a");
+          link.className = "source-link";
+          link.href = source.youtube_url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "📍 " + source.label;
+          row.appendChild(link);
+        });
+        bubble.appendChild(row);
+      }
+
+      chatMessages.appendChild(bubble);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return bubble;
+    }
+
+    chatForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text || chatBusy || !chatVideoId) return;
+
+      chatBusy = true;
+      chatSend.disabled = true;
+      chatInput.value = "";
+      addChatMessage("user", text);
+      const pending = addChatMessage("assistant pending", "Thinking...");
+
+      try {
+        const response = await fetch("/chat/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: JSON.stringify({
+            video_id: chatVideoId,
+            session_id: chatSessionId,
+            message: text,
+          }),
+        });
+        const data = await response.json();
+        pending.remove();
+
+        if (data.success) {
+          chatSessionId = data.session_id;
+          addChatMessage("assistant", data.answer, data.sources);
+        } else {
+          addChatMessage("error", data.error || "Something went wrong. Please try again.");
+        }
+      } catch (err) {
+        pending.remove();
+        addChatMessage("error", "Something went wrong. Please check your connection and try again.");
+      } finally {
+        chatBusy = false;
+        chatSend.disabled = false;
+        chatInput.focus();
+      }
+    });
+
+    function showError(message) {
+      document.getElementById("error-message").textContent = message;
+      showView("error");
+    }
+
+    function resetToInput() {
+      document.getElementById("summarize-form").reset();
+      chatAvailableForVideo = false;
+      headerChatBtn.hidden = true;
+      closeChatPanel();
+      questionsPollToken += 1; // cancel any pending question poll for this video
+      showView("input");
+    }
+
+    let timerInterval = null;
+    let timerStartedAt = null;
+
+    function updateTimerDisplay() {
+      const elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      document.getElementById("loading-timer").textContent =
+        "Elapsed: " + minutes + ":" + String(seconds).padStart(2, "0");
+    }
+
+    function startTimer() {
+      timerStartedAt = Date.now();
+      updateTimerDisplay();
+      timerInterval = setInterval(updateTimerDisplay, 250);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    document.getElementById("summarize-form").addEventListener("submit", async function (e) {
       e.preventDefault();
       const url = document.getElementById("youtube-url").value.trim();
       if (!url) return;
 
-      button.disabled = true;
-      button.textContent = "Checking...";
-      status.textContent = "⏳ Checking video...";
-      result.style.display = "none";
-      result.innerHTML = "";
+      showView("loading");
+      startTimer();
 
       try {
         const response = await fetch("/check-video/?url=" + encodeURIComponent(url));
         const data = await response.json();
 
+        stopTimer();
         if (data.success) {
-          result.innerHTML =
-            "✅ Video is valid and accessible<br><br>" +
-            "Title: " + escapeHtml(data.data.title) + "<br>" +
-            "Channel: " + escapeHtml(data.data.channel) + "<br>" +
-            "Duration: " + escapeHtml(data.data.duration);
+          showResult(data);
         } else {
-          result.innerHTML = "❌ Video can't be accessed<br><br>" + escapeHtml(data.message);
+          showError(data.message || "Something went wrong. Please try again.");
         }
       } catch (err) {
-        result.innerHTML =
-          "❌ Video can't be accessed<br><br>Something went wrong. Please try again.";
+        stopTimer();
+        showError("Something went wrong. Please check your connection and try again.");
       }
-
-      status.textContent = "";
-      result.style.display = "block";
-      button.disabled = false;
-      button.textContent = "Generate Summary";
     });
+
+    document.getElementById("summarize-another-btn").addEventListener("click", resetToInput);
+    document.getElementById("try-again-btn").addEventListener("click", resetToInput);
   </script>
 </body>
 </html>
